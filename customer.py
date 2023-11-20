@@ -10,10 +10,10 @@ object
 class Customer:
     """a model of a customer"""
     def __init__(self, name = "", age = 0, retirment_withdrawel_eligable = False,
-                  list_of_accounts = (), user_name = "", password = ""):
+                  list_of_accounts = (), username = "", password = ""):
         self.name = name
         self.age = age
         self.retirment_withdrawel_eligable = retirment_withdrawel_eligable
         self.list_of_accounts = list_of_accounts
-        self.user_name = user_name
+        self.username = username
         self.password = password

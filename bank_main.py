@@ -19,7 +19,10 @@ BANK_BANNER = pyfiglet.figlet_format("Vought Banking")
 MIN_NAME_LENGTH = 2
 RETIREMENT_WITHDRAWEL_AGE = 67
 PLAYER_FILE_PATH = 'pickle_file'
-ACCOUNT_TYPE_LIST = ["Savings", "Checking", "401k", "Money Market Fund"]
+ACCOUNT_TYPE_LIST = ["Soldier Boy Savings", "Crimson Countess Checking", "Stormfront Seniors 401k",
+                      "Mothers Milk Money Market Fund"]
+CREDS_MIN = 6
+CREDS_MAX = 10
 
 # dictionary uses
 def go_to_main():
@@ -71,10 +74,19 @@ def create_new_customer():
     if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
         customer.retirment_withdrawel_eligable = True
 
-    # create accounts for user
-    print("\nHere are the types of accounts offered at Vought Banking:\n")
-    for account_type in ACCOUNT_TYPE_LIST:
-        print(account_type)
+    # get username and password
+    print("\nEnter a username.\nThe requirements below must be met...\n" \
+          f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
+            "\nNo Spaces")
+    customer.username = get_valid_input("username")
+
+    print("\nEnter a password.\nThe requirements below must be met...\n" \
+          f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
+            "\nNo spaces")
+    customer.password = get_valid_input("password")
+
+    # save account to pickle file
+    get_customers("customer", customer)
 
     return customer
 
@@ -193,8 +205,16 @@ def get_valid_input(validation_type):
     if validation_type == "username":
         while 1:
             user_input = input()
+            char_list = []
+            for letter in user_input:
+                char_list.append(letter)
+
             if " " in user_input:
                 print("Username cannot contain white space")
+
+            elif len(char_list) < CREDS_MIN or len(char_list) > CREDS_MAX:
+                print("Username length requirements not met")
+
             else:
                 return user_input
 
@@ -218,19 +238,36 @@ def get_valid_input(validation_type):
                     # if what user types doesn't match anything in menu
                     print("Type an option on the menu")
 
+    if validation_type == "password":
+        while 1:
+            user_input = getpass.getpass()
+            if " " in user_input:
+                print("No spaces allowed...")
+            elif len(user_input) < CREDS_MIN or len(user_input > CREDS_MAX):
+                print("Length requirement not met")
+            else:
+                return user_input
+
 def customer_exists(customer_name):
     """determines by name if customer exists already
 
     Returns:
         bool: true/false depending on if customer exists
     """
+    customer_list = get_customers("read")
+    if customer_list is not None:
+        if len(customer_list) != 0:
+            for customer in customer_list:
+                if customer.name == customer_name:
+                    return True
+
     return False
 
 def check_creds(creds):
     """will take username and password from user and check if user exists"""
 
     customer = Customer()
-    list_of_customers = get_customers()
+    list_of_customers = get_customers("read")
 
     # check if username and passwrod match any existing customers
     for customer in list_of_customers:
@@ -239,10 +276,18 @@ def check_creds(creds):
                 return True
         return False
 
-def get_customers():
+def get_customers(serialization_type = "read", customer = None):
     """deserializes pickle file to get list of customers gor program"""
-    #loop through stored objects in pickle file and store in list
-    with open(PLAYER_FILE_PATH, 'w+b') as file:
+    #loop through stored objects in pickle file and store in list or read from list
+    pickle_command = 'r+b'
+    adding_customer = False
+
+    if serialization_type == "write":
+        pickle_command = 'w+b'
+        adding_customer = True
+        
+
+    with open(PLAYER_FILE_PATH, pickle_command) as file:
         if os.path.getsize(PLAYER_FILE_PATH) > 0:
             #load existing customer info into list
             list_of_customers = pickle.load(file)
@@ -255,8 +300,6 @@ def print_main_menu_dict():
 
 def main():
     """main entrypoint into program"""
-    # get customers
-    customer_list = get_customers()
 
     # pyfiglet usage: will dispaly banner for program
     print(BANK_BANNER)
@@ -268,24 +311,6 @@ def main():
 
     # let user choose option on main menu
     get_valid_input("main_menu_key")
-
-    # # determine if customer exists
-    # existing_user = get_valid_input("bool")
-
-    # # create new customer or fetch customers existing info
-    # if existing_user:   
-    #     # let user try to login
-    #     login()
-    # else:
-    #     # create a new customer
-    #     print("\nLets get you started")
-    #     customer = create_new_customer()
-
-    #     if customer is None:
-    #         print("It seems you already have an account and are trying to make a new one.\n" \
-    #               "Dont laser your computer...\nLets try logging in first...")
-
-    #         login()
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error
