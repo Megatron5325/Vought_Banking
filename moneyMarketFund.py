@@ -6,8 +6,9 @@ Description: this class will describe
 the methods and attributes of an MMF
 object
 '''
+from account import Account
 
-class MMF:
+class MMF(Account):
     """a model of an MMF"""
     def __init__(self):
         pass

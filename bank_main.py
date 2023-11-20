@@ -19,10 +19,12 @@ BANK_BANNER = pyfiglet.figlet_format("Vought Banking")
 MIN_NAME_LENGTH = 2
 RETIREMENT_WITHDRAWEL_AGE = 67
 PLAYER_FILE_PATH = 'pickle_file'
+ACCOUNT_TYPE_LIST = ["Savings", "Checking", "401k", "Money Market Fund"]
 
-# dictionary use
+# dictionary uses
 def go_to_main():
     """will take customer back to main menu"""
+    print_main_menu_dict()
 
 def exit_program():
     """exits program"""
@@ -51,7 +53,7 @@ def create_new_customer():
     customer = Customer()
 
     # get customer name
-    print("Enter your full super name. If you enter only first and last," \
+    print("\nEnter your full super name. If you enter only first and last," \
           " We'll assume you don't have a middle name.")
     customer.name = get_valid_input("full_name")
 
@@ -69,6 +71,11 @@ def create_new_customer():
     if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
         customer.retirment_withdrawel_eligable = True
 
+    # create accounts for user
+    print("\nHere are the types of accounts offered at Vought Banking:\n")
+    for account_type in ACCOUNT_TYPE_LIST:
+        print(account_type)
+
     return customer
 
 # dict for users not logged in
@@ -77,6 +84,30 @@ MAIN_MENU_DICT = {
     "Login": login,
     "Exit": exit_program,
     "Create Account": create_new_customer
+}
+
+def create_savings():
+    """create savings account object"""
+    pass
+
+def create_checking():
+    """create checking account object"""
+    pass
+
+def create_retirement():
+    """create retirement account object"""
+    pass
+
+def create_mmf():
+    """create money market fund account object"""
+    pass
+
+# dict for creating accounts
+ACCOUNT_DICT = {
+    "Savings": create_savings,
+    "Checking": create_checking,
+    "401k": create_retirement,
+    "MMF": create_mmf
 }
 
 # dict for logged in users
@@ -170,15 +201,22 @@ def get_valid_input(validation_type):
     if validation_type == "main_menu_key":
         while 1:
             user_input = input().lower()
-            user_input = user_input.capitalize()
 
+            # you're using an int counter for this and incrementing becuase once the
+            # methods from the dict run, the error message always runs once the
+            # dect method is over. This keeps it from running, when the program
+            # returns and goes back to main.
+            i = 0
+            counter = len(MAIN_MENU_DICT)
             # check to match menu items with user input
             for key, value in MAIN_MENU_DICT.items():
-                if user_input == key:
+                i += 1
+                if user_input == key.lower():
                     value()
 
-            # if what user types doesn't match anything in menu
-            print("Type an option on the menu")
+                if i == counter + 1:
+                    # if what user types doesn't match anything in menu
+                    print("Type an option on the menu")
 
 def customer_exists(customer_name):
     """determines by name if customer exists already
@@ -210,6 +248,11 @@ def get_customers():
             list_of_customers = pickle.load(file)
             return list_of_customers
 
+def print_main_menu_dict():
+    """prints all keys in main menu dictionary"""
+    for key in MAIN_MENU_DICT:
+        print(key)
+
 def main():
     """main entrypoint into program"""
     # get customers
@@ -219,10 +262,9 @@ def main():
     print(BANK_BANNER)
     print("\nWelcome to Vought Banking!")
 
-    # dispaly main menu dict items
+    # display main menu dict items
     print("You can type any menu item\n")
-    for key in MAIN_MENU_DICT:
-        print(key)
+    print_main_menu_dict()
 
     # let user choose option on main menu
     get_valid_input("main_menu_key")
