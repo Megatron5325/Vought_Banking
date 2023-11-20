@@ -58,6 +58,25 @@ def get_valid_input(validation_type):
             else:
                 print("...Enter yes or no...")
 
+    if validation_type == "full_name":
+        while 1:
+            # get user name
+            user_input = input()
+            name_list = user_input.split(' ')
+
+            # check to see that they gave you at least a first and last
+            if len(name_list) < 2:
+                print("You must enter a first, last, and middle name if you have one")
+
+            else:
+                # verify this is what they want their name to be
+                print(f"Verify")
+
+                # modify each part of name
+                for name in name_list:
+                    name.lower()
+
+
 def create_new_customer():
     """will create new customer object
 
@@ -67,6 +86,10 @@ def create_new_customer():
     # instansiate Customer class
     customer = Customer()
 
+    # get customer name
+    print("Enter your full name. If you enter only two names," \
+          " We'll assume you don't have a middle name.")
+    customer.name = get_valid_input("full_name")
 
     return customer
 
