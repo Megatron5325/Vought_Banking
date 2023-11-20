@@ -8,10 +8,10 @@ log into old accounts, and withrawel or deposit money
 into various accounts.
 '''
 
-import pyfiglet
 import getpass
 import pickle
 import os
+import pyfiglet
 from customer import Customer
 
 # constants
@@ -36,13 +36,47 @@ def login():
 
     # make list to deliver back to validation method
     creds_list = [user_name, password]
-    check_creds(creds_list)
+    if check_creds(creds_list) is False:
+        print("Login failed, please try again from main menu or create an account")
+
+def create_new_customer():
+    """will create new customer object
+
+    Returns:
+        Customer: new customer if they don't exist,
+        returns none if they do exist trying
+        to make another account
+    """
+    # instansiate Customer class
+    customer = Customer()
+
+    # get customer name
+    print("Enter your full super name. If you enter only first and last," \
+          " We'll assume you don't have a middle name.")
+    customer.name = get_valid_input("full_name")
+
+    # take name a make sure an existing customer isn't trying to make a new profile
+    customer_exists_already = customer_exists(customer.name)
+    if customer_exists_already:
+        # return None if customer already exists and is trying to make another account
+        return None
+
+    # get age
+    print("\nHow old are you?\nPlease enter in human years.")
+    customer.age = get_valid_input("int")
+
+    # determine if they can pull from their 401k
+    if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
+        customer.retirment_withdrawel_eligable = True
+
+    return customer
 
 # dict for users not logged in
 MAIN_MENU_DICT = {
     "Main": go_to_main,
     "Login": login,
-    "Exit": exit_program
+    "Exit": exit_program,
+    "Create Account": create_new_customer
 }
 
 # dict for logged in users
@@ -154,47 +188,11 @@ def customer_exists(customer_name):
     """
     return False
 
-def create_new_customer():
-    """will create new customer object
-
-    Returns:
-        Customer: new customer if they don't exist,
-        returns none if they do exist trying
-        to make another account
-    """
-    # instansiate Customer class
-    customer = Customer()
-
-    # get customer name
-    print("Enter your full super name. If you enter only first and last," \
-          " We'll assume you don't have a middle name.")
-    customer.name = get_valid_input("full_name")
-
-    # take name a make sure an existing customer isn't trying to make a new profile
-    customer_exists_already = customer_exists(customer.name)
-    if customer_exists_already:
-        # return None if customer already exists and is trying to make another account
-        return None
-
-    # get age
-    print("\nHow old are you?\nPlease enter in human years.")
-    customer.age = get_valid_input("int")
-
-    # determine if they can pull from their 401k
-    if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
-        customer.retirment_withdrawel_eligable = True
-
-    return customer
-
 def check_creds(creds):
     """will take username and password from user and check if user exists"""
 
     customer = Customer()
-    #loop through stored objects in pickle file and store in list
-    with open(PLAYER_FILE_PATH, 'r+b') as file:
-        if os.path.getsize(PLAYER_FILE_PATH) > 0:
-            #load existing customer info into list
-            list_of_customers = pickle.load(file)
+    list_of_customers = get_customers()
 
     # check if username and passwrod match any existing customers
     for customer in list_of_customers:
@@ -203,9 +201,19 @@ def check_creds(creds):
                 return True
         return False
 
+def get_customers():
+    """deserializes pickle file to get list of customers gor program"""
+    #loop through stored objects in pickle file and store in list
+    with open(PLAYER_FILE_PATH, 'w+b') as file:
+        if os.path.getsize(PLAYER_FILE_PATH) > 0:
+            #load existing customer info into list
+            list_of_customers = pickle.load(file)
+            return list_of_customers
 
 def main():
     """main entrypoint into program"""
+    # get customers
+    customer_list = get_customers()
 
     # pyfiglet usage: will dispaly banner for program
     print(BANK_BANNER)
