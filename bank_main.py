@@ -13,6 +13,8 @@ from customer import Customer
 
 # constants
 BANK_BANNER = pyfiglet.figlet_format("Vought Banking")
+MIN_NAME_LENGTH = 2
+RETIREMENT_WITHDRAWEL_AGE = 67
 
 # dictionary use
 def go_to_main():
@@ -58,6 +60,19 @@ def get_valid_input(validation_type):
             else:
                 print("...Enter yes or no...")
 
+    if validation_type == "int":
+        while 1:
+            # get user input
+            user_input = input()
+
+            # try to parse
+            try:
+                int(user_input)
+                return user_input
+
+            except ValueError:
+                print("Enter a valid number")
+
     if validation_type == "full_name":
         while 1:
             # get user name
@@ -65,23 +80,35 @@ def get_valid_input(validation_type):
             name_list = user_input.split(' ')
 
             # check to see that they gave you at least a first and last
-            if len(name_list) < 2:
+            if len(name_list) < MIN_NAME_LENGTH:
                 print("You must enter a first, last, and middle name if you have one")
 
             else:
-                # verify this is what they want their name to be
-                print(f"Verify")
-
                 # modify each part of name
                 for name in name_list:
+                    # lower all parts of name
                     name.lower()
+                    # append names to one string and capitalize each one
+                    user_name =+ f"{name.capitalize()} "
 
+                # return user name lowered
+                return user_name
+
+def customer_exists(customer_name):
+    """determines by name if customer exists already
+
+    Returns:
+        bool: true/false depending on if customer exists
+    """
+    return False
 
 def create_new_customer():
     """will create new customer object
 
     Returns:
-        Customer: new customer
+        Customer: new customer if they don't exist,
+        returns none if they do exist trying
+        to make another account
     """
     # instansiate Customer class
     customer = Customer()
@@ -91,7 +118,23 @@ def create_new_customer():
           " We'll assume you don't have a middle name.")
     customer.name = get_valid_input("full_name")
 
+    # take name a make sure an existing customer isn't trying to make a new profile
+    customer_exists_already = customer_exists(customer.name)
+    if customer_exists_already:
+        # return None if customer already exists and is trying to make another account
+        return None
+
+    # get age
+    customer.age = get_valid_input("int")
+
+    # determine if they can pull from their 401k
+    if customer.age >= RETIREMENT_WITHDRAWEL_AGE:
+        customer.retirment_withdrawel_eligable = True
+
     return customer
+
+def login():
+    """will allow users to login and control their accounts"""
 
 def main():
     """main entrypoint into progam"""
@@ -112,6 +155,12 @@ def main():
         # create a new customer
         print("Lets get you started")
         customer = create_new_customer()
+
+        if customer == None:
+            print("It seems you already have an account and are trying to make a new one.\n" \
+                  "Lets try logging in...")
+            
+            login()
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error
