@@ -24,14 +24,20 @@ def exit_program():
     """exits program"""
     exit()
 
-def view_accounts():
-    """displays accounts for current user"""
+def login():
+    """allows user to login and control accounts"""
 
+# dict for users not logged in
 MAIN_MENU_DICT = {
     "Main": go_to_main,
     "Exit": exit_program,
-    "View Accounts": view_accounts
+    "Login": login
 
+}
+
+# dict for logged in users
+LOGIN_MENU_DICT = {
+    "": ""
 }
 
 def get_valid_input(validation_type):
@@ -55,7 +61,7 @@ def get_valid_input(validation_type):
             if user_input.lower() in ["y", "yes"]:
                 return True
             # return false if customer is new
-            elif user_input.lower in ["n", "no"]:
+            elif user_input.lower() in ["n", "no"]:
                 return False
             else:
                 print("...Enter yes or no...")
@@ -85,14 +91,29 @@ def get_valid_input(validation_type):
 
             else:
                 # modify each part of name
+                full_name = ""
                 for name in name_list:
                     # lower all parts of name
                     name.lower()
                     # append names to one string and capitalize each one
-                    user_name =+ f"{name.capitalize()} "
+                    full_name += f"{name.capitalize()} "
 
-                # return user name lowered
-                return user_name
+                # ensure this is the name they want
+                print(f"\nis \"{full_name}\" correct? Type Y/N")
+
+                # validate that their name is correct
+                while 1:
+                    user_response = input()
+                    if user_response.lower() in ["y", "yes"]:
+                        return full_name.strip()
+                    elif user_response.lower() in ["n", "no"]:
+                        break
+                    else:
+                        print("Enter yes or no...")
+
+            # print statement and continuation for if they want to re-enter their name
+            print("Try entering your name again.")
+            continue
 
 def customer_exists(customer_name):
     """determines by name if customer exists already
@@ -114,7 +135,7 @@ def create_new_customer():
     customer = Customer()
 
     # get customer name
-    print("Enter your full name. If you enter only two names," \
+    print("Enter your full super name. If you enter only first and last," \
           " We'll assume you don't have a middle name.")
     customer.name = get_valid_input("full_name")
 
@@ -125,24 +146,22 @@ def create_new_customer():
         return None
 
     # get age
+    print("\nHow old are you?\nPlease enter in human years.")
     customer.age = get_valid_input("int")
 
     # determine if they can pull from their 401k
-    if customer.age >= RETIREMENT_WITHDRAWEL_AGE:
+    if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
         customer.retirment_withdrawel_eligable = True
 
     return customer
 
-def login():
-    """will allow users to login and control their accounts"""
-
 def main():
-    """main entrypoint into progam"""
+    """main entrypoint into program"""
 
     # pyfiglet usage: will dispaly banner for program
     print(BANK_BANNER)
     print("\nWelcome to Vought Banking!\n" \
-        "are you an existing customer?\n" \
+        "are you an existing Sup Customer?\n" \
             "type Y/N")
 
     # determine if customer exists
@@ -153,13 +172,13 @@ def main():
         pass
     else:
         # create a new customer
-        print("Lets get you started")
+        print("\nLets get you started")
         customer = create_new_customer()
 
-        if customer == None:
+        if customer is None:
             print("It seems you already have an account and are trying to make a new one.\n" \
-                  "Lets try logging in...")
-            
+                  "Dont laser your computer...\nLets try logging in first...")
+
             login()
 
 if __name__ == "__main__":
