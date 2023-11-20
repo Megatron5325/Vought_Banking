@@ -9,12 +9,16 @@ into various accounts.
 '''
 
 import pyfiglet
+import getpass
+import pickle
+import os
 from customer import Customer
 
 # constants
 BANK_BANNER = pyfiglet.figlet_format("Vought Banking")
 MIN_NAME_LENGTH = 2
 RETIREMENT_WITHDRAWEL_AGE = 67
+PLAYER_FILE_PATH = 'pickle_file'
 
 # dictionary use
 def go_to_main():
@@ -26,17 +30,23 @@ def exit_program():
 
 def login():
     """allows user to login and control accounts"""
+    print("\nUsername:")
+    user_name = input()
+    password = getpass.getpass()
+
+    # make list to deliver back to validation method
+    creds_list = [user_name, password]
+    check_creds(creds_list)
 
 # dict for users not logged in
 MAIN_MENU_DICT = {
     "Main": go_to_main,
-    "Exit": exit_program,
-    "Login": login
-
+    "Login": login,
+    "Exit": exit_program
 }
 
 # dict for logged in users
-LOGIN_MENU_DICT = {
+LOGGED_IN_MENU_DICT = {
     "": ""
 }
 
@@ -112,8 +122,29 @@ def get_valid_input(validation_type):
                         print("Enter yes or no...")
 
             # print statement and continuation for if they want to re-enter their name
-            print("Try entering your name again.")
+            print("Try entering your super human name again.")
             continue
+
+    if validation_type == "username":
+        while 1:
+            user_input = input()
+            if " " in user_input:
+                print("Username cannot contain white space")
+            else:
+                return user_input
+
+    if validation_type == "main_menu_key":
+        while 1:
+            user_input = input().lower()
+            user_input = user_input.capitalize()
+
+            # check to match menu items with user input
+            for key, value in MAIN_MENU_DICT.items():
+                if user_input == key:
+                    value()
+
+            # if what user types doesn't match anything in menu
+            print("Type an option on the menu")
 
 def customer_exists(customer_name):
     """determines by name if customer exists already
@@ -155,31 +186,56 @@ def create_new_customer():
 
     return customer
 
+def check_creds(creds):
+    """will take username and password from user and check if user exists"""
+
+    customer = Customer()
+    #loop through stored objects in pickle file and store in list
+    with open(PLAYER_FILE_PATH, 'r+b') as file:
+        if os.path.getsize(PLAYER_FILE_PATH) > 0:
+            #load existing customer info into list
+            list_of_customers = pickle.load(file)
+
+    # check if username and passwrod match any existing customers
+    for customer in list_of_customers:
+        if customer.username == creds[0]:
+            if customer.password == creds[1]:
+                return True
+        return False
+
+
 def main():
     """main entrypoint into program"""
 
     # pyfiglet usage: will dispaly banner for program
     print(BANK_BANNER)
-    print("\nWelcome to Vought Banking!\n" \
-        "are you an existing Sup Customer?\n" \
-            "type Y/N")
+    print("\nWelcome to Vought Banking!")
 
-    # determine if customer exists
-    existing_user = get_valid_input("bool")
+    # dispaly main menu dict items
+    print("You can type any menu item\n")
+    for key in MAIN_MENU_DICT:
+        print(key)
 
-    # create new customer or fetch customers existing info
-    if existing_user:
-        pass
-    else:
-        # create a new customer
-        print("\nLets get you started")
-        customer = create_new_customer()
+    # let user choose option on main menu
+    get_valid_input("main_menu_key")
 
-        if customer is None:
-            print("It seems you already have an account and are trying to make a new one.\n" \
-                  "Dont laser your computer...\nLets try logging in first...")
+    # # determine if customer exists
+    # existing_user = get_valid_input("bool")
 
-            login()
+    # # create new customer or fetch customers existing info
+    # if existing_user:   
+    #     # let user try to login
+    #     login()
+    # else:
+    #     # create a new customer
+    #     print("\nLets get you started")
+    #     customer = create_new_customer()
+
+    #     if customer is None:
+    #         print("It seems you already have an account and are trying to make a new one.\n" \
+    #               "Dont laser your computer...\nLets try logging in first...")
+
+    #         login()
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error

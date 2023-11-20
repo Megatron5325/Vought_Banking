@@ -9,5 +9,5 @@ object
 
 class Bank:
     """a model of a bank"""
-    def __init__(self):
+    def __init__(self, list_of_logins):
         pass
