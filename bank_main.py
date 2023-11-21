@@ -7,10 +7,10 @@ interface that will allow a customer to create accounts,
 log into old accounts, and withrawel or deposit money
 into various accounts.
 '''
-
 import getpass
 import pickle
 import os
+import keyboard
 import pyfiglet
 from customer import Customer
 
@@ -74,19 +74,25 @@ def create_new_customer():
     if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
         customer.retirment_withdrawel_eligable = True
 
-    # get username and password
+    # get username
     print("\nEnter a username.\nThe requirements below must be met...\n" \
           f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
             "\nNo Spaces")
     customer.username = get_valid_input("username")
 
+    # get password
     print("\nEnter a password.\nThe requirements below must be met...\n" \
           f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
             "\nNo spaces")
     customer.password = get_valid_input("password")
 
     # save account to pickle file
-    get_customers("write", customer)
+    using_pickle_file("write", customer)
+
+    # let customer know account creation was successful
+    print("\nCongratulations! You are now one of hundreds of American Sups that\n" \
+          "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
+            "You will be returned to the front page to login now.")
 
     return customer
 
@@ -170,7 +176,7 @@ def get_valid_input(validation_type):
         while 1:
             # get user name
             user_input = input()
-            name_list = user_input.split(' ')
+            name_list = user_input.strip().split()
 
             # check to see that they gave you at least a first and last
             if len(name_list) < MIN_NAME_LENGTH:
@@ -219,7 +225,10 @@ def get_valid_input(validation_type):
                 return user_input
 
     if validation_type == "main_menu_key":
-        while 1:
+        # setting bool here so that loop won't continue to run after breaking
+        # out of for look inside while loop after dict function runs.
+        need_input = True
+        while need_input:
             user_input = input().lower()
 
             # you're using an int counter for this and incrementing becuase once the
@@ -236,6 +245,7 @@ def get_valid_input(validation_type):
                     print("Type an option on the menu")
                 if user_input == key.lower():
                     value()
+                    need_input = False
                     break
 
     if validation_type == "password":
@@ -254,7 +264,7 @@ def customer_exists(customer_name):
     Returns:
         bool: true/false depending on if customer exists
     """
-    customer_list = get_customers("read")
+    customer_list = using_pickle_file("read")
     if customer_list is not None:
         if len(customer_list) != 0:
             for customer in customer_list:
@@ -267,7 +277,7 @@ def check_creds(creds):
     """will take username and password from user and check if user exists"""
 
     customer = Customer()
-    list_of_customers = get_customers("read")
+    list_of_customers = using_pickle_file("read")
 
     # check if username and passwrod match any existing customers
     for customer in list_of_customers:
@@ -276,24 +286,52 @@ def check_creds(creds):
                 return True
         return False
 
-def get_customers(serialization_type = "read", customer = None):
+def using_pickle_file(serialization_type = "read", customer = None):
     """deserializes pickle file to get list of customers gor program"""
     #loop through stored objects in pickle file and store in list or read from list
     pickle_command = 'r+b'
-    adding_customer = False
 
     if serialization_type == "write":
         pickle_command = 'w+b'
-        adding_customer = True
 
     with open(PLAYER_FILE_PATH, pickle_command) as file:
         if serialization_type == "read" and os.path.getsize(PLAYER_FILE_PATH) > 0:
             #load existing customer info into list
             list_of_customers = pickle.load(file)
             return list_of_customers
+
         elif serialization_type == "write":
-            list_of_customers = pickle.dump(file)
+
+            # if pickle file has info and you're loading it
+            if os.path.getsize(PLAYER_FILE_PATH) > 0:
+                # get all existing customers
+                list_of_customers = pickle.load(file)
+                # append new customer to list
+                list_of_customers.append(customer)
+
+            # if pickle file has no info so you're creating new list
+            else:
+                # no customers exist so creat a list for them
+                list_of_customers = []
+                # append customer object to list
+                list_of_customers.append(customer)
+
+            # store new list in the pickl file
+            pickle.dump(list_of_customers, file)
+            # close file
+            file.close()
+
             return list_of_customers
+
+def using_main_menu():
+    """will bring you back to the main menu and wait for user input"""
+
+    # display main menu dict items
+    print("You can type any menu item\n")
+    print_main_menu_dict()
+
+    # let user choose option on main menu
+    get_valid_input("main_menu_key")
 
 def print_main_menu_dict():
     """prints all keys in main menu dictionary"""
@@ -302,17 +340,17 @@ def print_main_menu_dict():
 
 def main():
     """main entrypoint into program"""
+    # set hot key to exit program at any time
+    keyboard.add_word_listener("compv", using_main_menu())
 
     # pyfiglet usage: will dispaly banner for program
     print(BANK_BANNER)
     print("\nWelcome to Vought Banking!")
 
-    # display main menu dict items
-    print("You can type any menu item\n")
-    print_main_menu_dict()
+    # program will not exit until user types exit or manually ends program
+    while 1:
+        using_main_menu()
 
-    # let user choose option on main menu
-    get_valid_input("main_menu_key")
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error
