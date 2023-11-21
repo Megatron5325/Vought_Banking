@@ -86,7 +86,7 @@ def create_new_customer():
     customer.password = get_valid_input("password")
 
     # save account to pickle file
-    get_customers("customer", customer)
+    get_customers("write", customer)
 
     return customer
 
@@ -231,19 +231,19 @@ def get_valid_input(validation_type):
             # check to match menu items with user input
             for key, value in MAIN_MENU_DICT.items():
                 i += 1
-                if user_input == key.lower():
-                    value()
-
-                if i == counter + 1:
+                if i == counter:
                     # if what user types doesn't match anything in menu
                     print("Type an option on the menu")
+                if user_input == key.lower():
+                    value()
+                    break
 
     if validation_type == "password":
         while 1:
             user_input = getpass.getpass()
             if " " in user_input:
                 print("No spaces allowed...")
-            elif len(user_input) < CREDS_MIN or len(user_input > CREDS_MAX):
+            elif len(user_input) < CREDS_MIN or len(user_input) > CREDS_MAX:
                 print("Length requirement not met")
             else:
                 return user_input
@@ -285,12 +285,14 @@ def get_customers(serialization_type = "read", customer = None):
     if serialization_type == "write":
         pickle_command = 'w+b'
         adding_customer = True
-        
 
     with open(PLAYER_FILE_PATH, pickle_command) as file:
-        if os.path.getsize(PLAYER_FILE_PATH) > 0:
+        if serialization_type == "read" and os.path.getsize(PLAYER_FILE_PATH) > 0:
             #load existing customer info into list
             list_of_customers = pickle.load(file)
+            return list_of_customers
+        elif serialization_type == "write":
+            list_of_customers = pickle.dump(file)
             return list_of_customers
 
 def print_main_menu_dict():
