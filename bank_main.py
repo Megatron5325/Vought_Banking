@@ -10,8 +10,8 @@ into various accounts.
 import getpass
 import pickle
 import os
-import keyboard
 import pyfiglet
+from colorama import Fore, Style
 from customer import Customer
 
 # constants
@@ -21,13 +21,14 @@ RETIREMENT_WITHDRAWEL_AGE = 67
 PLAYER_FILE_PATH = 'pickle_file'
 ACCOUNT_TYPE_LIST = ["Soldier Boy Savings", "Crimson Countess Checking", "Stormfront Seniors 401k",
                       "Mothers Milk Money Market Fund"]
+MISSION_STATEMENT_FILE_PATH = 'mission_statement.txt'
 CREDS_MIN = 6
 CREDS_MAX = 10
 
 # dictionary uses
 def go_to_main():
     """will take customer back to main menu"""
-    print_main_menu_dict()
+    print_and_clear_screen()
 
 def exit_program():
     """exits program"""
@@ -90,15 +91,27 @@ def create_new_customer():
     using_pickle_file("write", customer)
 
     # let customer know account creation was successful
-    print("\nCongratulations! You are now one of hundreds of American Sups that\n" \
+    print_and_clear_screen()
+    print("\nCONGRATULATIONS! You are now one of hundreds of American Sups that\n" \
           "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
             "You will be returned to the front page to login now.")
 
     return customer
 
+def mission_statement():
+    """prints Vought Banking mission statement"""
+
+    with open(MISSION_STATEMENT_FILE_PATH, "r", encoding="utf8") as f:
+        file_contents = f.read()
+        print_and_clear_screen()
+        print(Fore.BLUE + file_contents)
+        print(Style.RESET_ALL)
+        f.close()
+
 # dict for users not logged in
 MAIN_MENU_DICT = {
     "Main": go_to_main,
+    "Our Mission": mission_statement,
     "Login": login,
     "Exit": exit_program,
     "Create Account": create_new_customer
@@ -240,13 +253,16 @@ def get_valid_input(validation_type):
             # check to match menu items with user input
             for key, value in MAIN_MENU_DICT.items():
                 i += 1
-                if i == counter:
-                    # if what user types doesn't match anything in menu
-                    print("Type an option on the menu")
                 if user_input == key.lower():
                     value()
                     need_input = False
                     break
+
+            if i == counter and need_input is True:
+                # if what user types doesn't match anything in menu
+                print_and_clear_screen()
+                print_main_menu_dict()
+                print("\nType an option on the menu")
 
     if validation_type == "password":
         while 1:
@@ -327,7 +343,6 @@ def using_main_menu():
     """will bring you back to the main menu and wait for user input"""
 
     # display main menu dict items
-    print("You can type any menu item\n")
     print_main_menu_dict()
 
     # let user choose option on main menu
@@ -335,22 +350,27 @@ def using_main_menu():
 
 def print_main_menu_dict():
     """prints all keys in main menu dictionary"""
+
+    print("You can type any menu item\n")
     for key in MAIN_MENU_DICT:
         print(key)
 
-def main():
-    """main entrypoint into program"""
-    # set hot key to exit program at any time
-    keyboard.add_word_listener("compv", using_main_menu())
+def print_and_clear_screen():
+    """prints pyfiglet banner"""
 
     # pyfiglet usage: will dispaly banner for program
-    print(BANK_BANNER)
-    print("\nWelcome to Vought Banking!")
+    os.system("clear")
+    print(Fore.BLUE + BANK_BANNER)
+    print(Style.RESET_ALL)
+
+def main():
+    """main entrypoint into program"""
+    # print banner
+    print_and_clear_screen()
 
     # program will not exit until user types exit or manually ends program
     while 1:
         using_main_menu()
-
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error

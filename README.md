@@ -3,4 +3,4 @@ This app will be a banking interface that will store user accounts and submit tr
 
 ## Dependencies
 - [pyfiglet](https://pypi.org/project/pyfiglet/)
-- [keyboard](https://pypi.org/project/keyboard/)
+- [colorama](https://pypi.org/project/colorama/)
