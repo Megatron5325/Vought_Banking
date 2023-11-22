@@ -10,12 +10,16 @@ into various accounts.
 import getpass
 import pickle
 import os
+import time
 import pyfiglet
 from colorama import Fore, Style
 from customer import Customer
 
 # constants
 BANK_BANNER = pyfiglet.figlet_format("Vought Banking")
+LOADING_CHARACTER = "*"
+LOADING_CHARACTER_LENGTH = 75
+LOADING_CHARACTER_SLEEP_TIMER = 0.095
 MIN_NAME_LENGTH = 2
 RETIREMENT_WITHDRAWEL_AGE = 67
 PLAYER_FILE_PATH = 'pickle_file'
@@ -95,6 +99,15 @@ def create_new_customer():
     print("\nCONGRATULATIONS! You are now one of hundreds of American Sups that\n" \
           "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
             "You will be returned to the front page to login now.")
+
+    # simulate loading screen
+    i = 1
+    while i < LOADING_CHARACTER_LENGTH:
+        print(LOADING_CHARACTER, end='', flush=True)
+        time.sleep(LOADING_CHARACTER_SLEEP_TIMER)
+        i += 1
+    print ("\n")
+    print_and_clear_screen()
 
     return customer
 
