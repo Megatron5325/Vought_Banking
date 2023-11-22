@@ -57,59 +57,63 @@ def create_new_customer():
         returns none if they do exist trying
         to make another account
     """
-    # instansiate Customer class
-    customer = Customer()
+    while 1:
+        # instansiate Customer class
+        customer = Customer()
 
-    # get customer name
-    print("\nEnter your full super name. If you enter only first and last," \
-          " We'll assume you don't have a middle name.")
-    customer.name = get_valid_input("full_name")
+        # get customer name
+        print("\nEnter your full super name. If you enter only first and last," \
+            " We'll assume you don't have a middle name.")
+        customer.name = get_valid_input("full_name")
 
-    # take name a make sure an existing customer isn't trying to make a new profile
-    customer_exists_already = customer_exists(customer.name)
-    if customer_exists_already:
-        # return None if customer already exists and is trying to make another account
-        return None
+        # take name a make sure an existing customer isn't trying to make a new profile
+        customer_exists_already = customer_exists(customer.name)
+        if customer_exists_already:
+            # return None if customer already exists and is trying to make another account
+            print("Looks like theres already an account with that name...\n" \
+                "Lets try to log you in instead")
+            login()
+            return None
 
-    # get age
-    print("\nHow old are you?\nPlease enter in human years.")
-    customer.age = get_valid_input("int")
+        # get age
+        print("\nHow old are you?\nPlease enter in human years.")
+        customer.age = get_valid_input("int")
 
-    # determine if they can pull from their 401k
-    if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
-        customer.retirment_withdrawel_eligable = True
+        # determine if they can pull from their 401k
+        if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
+            customer.retirment_withdrawel_eligable = True
 
-    # get username
-    print("\nEnter a username.\nThe requirements below must be met...\n" \
-          f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
-            "\nNo Spaces")
-    customer.username = get_valid_input("username")
+        # get username
+        print("\nEnter a username.\nThe requirements below must be met...\n" \
+            f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
+                "\nNo Spaces")
+        customer.username = get_valid_input("username")
 
-    # get password
-    print("\nEnter a password.\nThe requirements below must be met...\n" \
-          f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
-            "\nNo spaces")
-    customer.password = get_valid_input("password")
+        # get password
+        print("\nEnter a password.\nThe requirements below must be met...\n" \
+            f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
+                "\nNo spaces")
+        customer.password = get_valid_input("password")
 
-    # save account to pickle file
-    using_pickle_file("write", customer)
+        # save account to pickle file
+        using_pickle_file("write", customer)
 
-    # let customer know account creation was successful
-    print_and_clear_screen()
-    print("\nCONGRATULATIONS! You are now one of hundreds of American Sups that\n" \
-          "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
-            "You will be returned to the front page to login now.")
+        # let customer know account creation was successful
+        print_and_clear_screen()
+        print("\nCONGRATULATIONS! You are now one of hundreds of American Sups that\n" \
+            "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
+                "You will be returned to the front page to login now.")
 
-    # simulate loading screen
-    i = 1
-    while i < LOADING_CHARACTER_LENGTH:
-        print(LOADING_CHARACTER, end='', flush=True)
-        time.sleep(LOADING_CHARACTER_SLEEP_TIMER)
-        i += 1
-    print ("\n")
-    print_and_clear_screen()
+        # simulate loading screen
+        i = 1
+        while i < LOADING_CHARACTER_LENGTH:
+            print(LOADING_CHARACTER, end='', flush=True)
+            time.sleep(LOADING_CHARACTER_SLEEP_TIMER)
+            i += 1
+        print ("\n")
+        print_and_clear_screen()
 
-    return customer
+        return customer
 
 def mission_statement():
     """prints Vought Banking mission statement"""
@@ -132,19 +136,15 @@ MAIN_MENU_DICT = {
 
 def create_savings():
     """create savings account object"""
-    pass
 
 def create_checking():
     """create checking account object"""
-    pass
 
 def create_retirement():
     """create retirement account object"""
-    pass
 
 def create_mmf():
     """create money market fund account object"""
-    pass
 
 # dict for creating accounts
 ACCOUNT_DICT = {
@@ -156,7 +156,10 @@ ACCOUNT_DICT = {
 
 # dict for logged in users
 LOGGED_IN_MENU_DICT = {
-    "": ""
+    "View Accounts": "",
+    "Open New Account": "",
+    "Delete Account": "",
+    "Withdraw From Retirment": ""
 }
 
 def get_valid_input(validation_type):
@@ -250,7 +253,7 @@ def get_valid_input(validation_type):
             else:
                 return user_input
 
-    if validation_type == "main_menu_key":
+    if validation_type == "menu_keys":
         # setting bool here so that loop won't continue to run after breaking
         # out of for look inside while loop after dict function runs.
         need_input = True
@@ -352,6 +355,29 @@ def using_pickle_file(serialization_type = "read", customer = None):
 
             return list_of_customers
 
+def using_logged_in_menu():
+    """will bring you back to the logged in menu and wait for user input"""
+
+    # display logged in dict items
+    print_logged_in_dict()
+
+    # let user choose option on main menu
+    get_valid_input("menu_keys")
+
+def print_logged_in_dict():
+    """prints all keys in the logged in dictionary"""
+
+    # user will only reach this point if they logged in successfully
+    print("\nLOGIN SUCCESS")
+    time.sleep(3)
+
+    # clear screen of main menu
+    print_and_clear_screen()
+
+    print("You can type any menu item\n")
+    for key in LOGGED_IN_MENU_DICT:
+        print(key)
+
 def using_main_menu():
     """will bring you back to the main menu and wait for user input"""
 
@@ -359,7 +385,7 @@ def using_main_menu():
     print_main_menu_dict()
 
     # let user choose option on main menu
-    get_valid_input("main_menu_key")
+    get_valid_input("menu_keys")
 
 def print_main_menu_dict():
     """prints all keys in main menu dictionary"""
@@ -383,7 +409,11 @@ def main():
 
     # program will not exit until user types exit or manually ends program
     while 1:
+        # bring user to main menu
         using_main_menu()
+
+        # bring user to logged in menu
+        using_logged_in_menu()
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error
