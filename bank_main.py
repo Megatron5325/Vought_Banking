@@ -154,12 +154,28 @@ ACCOUNT_DICT = {
     "MMF": create_mmf
 }
 
+def view_accounts():
+    """allows user to view all owned accounts"""
+
+def open_accounts():
+    """allows user to open new accounts"""
+
+def delete_account():
+    """allows user to delete accounts"""
+
+def withdraw_retirment():
+    """allows user to withdraw retirment fund into savings or checking if eligable"""
+
+def logout():
+    """takes user back to main page"""
+
 # dict for logged in users
 LOGGED_IN_MENU_DICT = {
-    "View Accounts": "",
-    "Open New Account": "",
-    "Delete Account": "",
-    "Withdraw From Retirment": ""
+    "View Accounts": view_accounts,
+    "Open New Account": open_accounts,
+    "Delete Account": delete_account,
+    "Withdraw From Retirment": withdraw_retirment,
+    "Logout": logout
 }
 
 def get_valid_input(validation_type):
