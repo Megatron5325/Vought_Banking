@@ -9,5 +9,8 @@ object
 
 class Account:
     """a model of an account"""
-    def __init__(self, owner, username, password):
-        pass
+    def __init__(self, owner, username, password, account_type):
+        self.owner = owner
+        self.username = username
+        self.password = password
+        self.account_type = account_type

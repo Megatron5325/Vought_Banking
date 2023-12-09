@@ -11,28 +11,12 @@ import getpass
 import pickle
 import os
 import time
-import pyfiglet
 from colorama import Fore, Style
 from customer import Customer
+from bank import Bank
 
-# constants
-BANK_BANNER = pyfiglet.figlet_format("Vought Banking")
-LOADING_CHARACTER = "*"
-LOADING_CHARACTER_LENGTH = 75
-LOADING_CHARACTER_SLEEP_TIMER = 0.095
-MIN_NAME_LENGTH = 2
-RETIREMENT_WITHDRAWEL_AGE = 67
-PLAYER_FILE_PATH = 'pickle_file'
-ACCOUNT_TYPE_LIST = ["Soldier Boy Savings", "Crimson Countess Checking", "Stormfront Seniors 401k",
-                      "Mothers Milk Money Market Fund"]
-MISSION_STATEMENT_FILE_PATH = 'mission_statement.txt'
-CREDS_MIN = 6
-CREDS_MAX = 10
-
-# dictionary uses
-def go_to_main():
-    """will take customer back to main menu"""
-    print_and_clear_screen()
+ACCOUNT_TYPE_LIST = ["Soldier Boy Savings", "Crimson Countess Checking",
+                     "Stormfront Seniors 401kkk", "Mothers Milk Money Market Fund"]
 
 def exit_program():
     """exits program"""
@@ -99,7 +83,7 @@ def create_new_customer():
         using_pickle_file("write", customer)
 
         # let customer know account creation was successful
-        print_and_clear_screen()
+        Bank.print_and_clear_screen(BANK_BANNER)
         print("\nCONGRATULATIONS! You are now one of hundreds of American Sups that\n" \
             "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
                 "You will be returned to the front page to login now.")
@@ -111,7 +95,7 @@ def create_new_customer():
             time.sleep(LOADING_CHARACTER_SLEEP_TIMER)
             i += 1
         print ("\n")
-        print_and_clear_screen()
+        Bank.print_and_clear_screen(BANK_BANNER)
 
         return customer
 
@@ -120,7 +104,7 @@ def mission_statement():
 
     with open(MISSION_STATEMENT_FILE_PATH, "r", encoding="utf8") as f:
         file_contents = f.read()
-        print_and_clear_screen()
+        Bank.print_and_clear_screen(BANK_BANNER)
         print(Fore.BLUE + file_contents)
         print(Style.RESET_ALL)
         f.close()
@@ -178,149 +162,6 @@ LOGGED_IN_MENU_DICT = {
     "Logout": logout
 }
 
-def get_valid_input(validation_type):
-    """will continuously prompt user for input
-    until input is valid for program
-
-    Args:
-        validation_type (datatype): will describe if the
-        program needs a string/bool/int/ or a more specific
-        type of input
-
-    Return: (dataypes): will return validated user input
-    """
-
-    if validation_type == "bool":
-        while 1:
-            # get user input
-            user_input = input()
-
-            # return true if user exists
-            if user_input.lower() in ["y", "yes"]:
-                return True
-            # return false if customer is new
-            elif user_input.lower() in ["n", "no"]:
-                return False
-            else:
-                print("...Enter yes or no...")
-
-    if validation_type == "int":
-        while 1:
-            # get user input
-            user_input = input()
-
-            # try to parse
-            try:
-                int(user_input)
-                return user_input
-
-            except ValueError:
-                print("Enter a valid number")
-
-    if validation_type == "full_name":
-        while 1:
-            # get user name
-            user_input = input()
-            name_list = user_input.strip().split()
-
-            # check to see that they gave you at least a first and last
-            if len(name_list) < MIN_NAME_LENGTH:
-                print("You must enter a first, last, and middle name if you have one")
-
-            else:
-                # modify each part of name
-                full_name = ""
-                for name in name_list:
-                    # lower all parts of name
-                    name.lower()
-                    # append names to one string and capitalize each one
-                    full_name += f"{name.capitalize()} "
-
-                # ensure this is the name they want
-                print(f"\nis \"{full_name}\" correct? Type Y/N")
-
-                # validate that their name is correct
-                while 1:
-                    user_response = input()
-                    if user_response.lower() in ["y", "yes"]:
-                        return full_name.strip()
-                    elif user_response.lower() in ["n", "no"]:
-                        break
-                    else:
-                        print("Enter yes or no...")
-
-            # print statement and continuation for if they want to re-enter their name
-            print("Try entering your super human name again.")
-            continue
-
-    if validation_type == "username":
-        while 1:
-            user_input = input()
-            char_list = []
-            for letter in user_input:
-                char_list.append(letter)
-
-            if " " in user_input:
-                print("Username cannot contain white space")
-
-            elif len(char_list) < CREDS_MIN or len(char_list) > CREDS_MAX:
-                print("Username length requirements not met")
-
-            else:
-                return user_input
-
-    if validation_type == "menu_keys":
-        # setting bool here so that loop won't continue to run after breaking
-        # out of for look inside while loop after dict function runs.
-        need_input = True
-        while need_input:
-            user_input = input().lower()
-
-            # you're using an int counter for this and incrementing becuase once the
-            # methods from the dict run, the error message always runs once the
-            # dect method is over. This keeps it from running, when the program
-            # returns and goes back to main.
-            i = 0
-            counter = len(MAIN_MENU_DICT)
-            # check to match menu items with user input
-            for key, value in MAIN_MENU_DICT.items():
-                i += 1
-                if user_input == key.lower():
-                    value()
-                    need_input = False
-                    break
-
-            if i == counter and need_input is True:
-                # if what user types doesn't match anything in menu
-                print_and_clear_screen()
-                print_main_menu_dict()
-                print("\nType an option on the menu")
-
-    if validation_type == "password":
-        while 1:
-            user_input = getpass.getpass()
-            if " " in user_input:
-                print("No spaces allowed...")
-            elif len(user_input) < CREDS_MIN or len(user_input) > CREDS_MAX:
-                print("Length requirement not met")
-            else:
-                return user_input
-
-def customer_exists(customer_name):
-    """determines by name if customer exists already
-
-    Returns:
-        bool: true/false depending on if customer exists
-    """
-    customer_list = using_pickle_file("read")
-    if customer_list is not None:
-        if len(customer_list) != 0:
-            for customer in customer_list:
-                if customer.name == customer_name:
-                    return True
-
-    return False
-
 def check_creds(creds):
     """will take username and password from user and check if user exists"""
 
@@ -371,7 +212,7 @@ def using_pickle_file(serialization_type = "read", customer = None):
 
             return list_of_customers
 
-def using_logged_in_menu():
+def use_logged_in_menu():
     """will bring you back to the logged in menu and wait for user input"""
 
     # display logged in dict items
@@ -388,48 +229,25 @@ def print_logged_in_dict():
     time.sleep(3)
 
     # clear screen of main menu
-    print_and_clear_screen()
+    Bank.print_and_clear_screen(BANK_BANNER)
 
     print("You can type any menu item\n")
     for key in LOGGED_IN_MENU_DICT:
         print(key)
 
-def using_main_menu():
-    """will bring you back to the main menu and wait for user input"""
-
-    # display main menu dict items
-    print_main_menu_dict()
-
-    # let user choose option on main menu
-    get_valid_input("menu_keys")
-
-def print_main_menu_dict():
-    """prints all keys in main menu dictionary"""
-
-    print("You can type any menu item\n")
-    for key in MAIN_MENU_DICT:
-        print(key)
-
-def print_and_clear_screen():
-    """prints pyfiglet banner"""
-
-    # pyfiglet usage: will dispaly banner for program
-    os.system("clear")
-    print(Fore.BLUE + BANK_BANNER)
-    print(Style.RESET_ALL)
-
 def main():
     """main entrypoint into program"""
-    # print banner
-    print_and_clear_screen()
-
-    # program will not exit until user types exit or manually ends program
+    # instansiate bank
+    bank = Bank(MAIN_MENU_DICT, LOGGED_IN_MENU_DICT, BANK_BANNER)
     while 1:
-        # bring user to main menu
-        using_main_menu()
+        # clear screen and bring user to main menu
+        bank.reset_screen()
+        bank.print_main_menu_dict()
 
+        # let user choose option on main menu
+        get_valid_input("menu_keys")
         # bring user to logged in menu
-        using_logged_in_menu()
+        use_logged_in_menu()
 
 if __name__ == "__main__":
     #avoid ctrl C / ctr D error
