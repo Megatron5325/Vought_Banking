@@ -7,10 +7,8 @@ Description: a validation class
 import getpass
 from customer import Customer
 from file_reader import File
-from bank import Bank
 
-# constants
-MIN_NAME_LENGTH = 2
+MIN_NAME_LENGTH = 10
 CREDS_MIN = 6
 CREDS_MAX = 10
 
@@ -19,7 +17,7 @@ class Validate:
     input from user until correct'''
 
     @staticmethod
-    def get_valid_input(validation_type, main_menu_dict = ()):
+    def get_valid_input(validation_type = "", main_menu_options = ""):
         '''will take validation type and get correct input from user'''
 
         if validation_type == "bool":
@@ -114,9 +112,9 @@ class Validate:
                 # returns and goes back to main.
 
                 i = 0
-                counter = len(main_menu_dict)
+                counter = len(main_menu_options)
                 # check to match menu items with user input
-                for key, value in main_menu_dict.items():
+                for key, value in main_menu_options.items():
                     i += 1
                     if user_input == key.lower():
                         value()
@@ -125,8 +123,8 @@ class Validate:
 
                 if i == counter and need_input is True:
                     # if what user types doesn't match anything in menu
-                    Bank.print_and_clear_screen(main_menu_dict)
                     print("\nType an option on the menu")
+                    return True
 
         if validation_type == "password":
             while 1:
