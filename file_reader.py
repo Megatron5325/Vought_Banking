@@ -7,6 +7,7 @@ any type of file.
 '''
 import pickle
 import os
+from colorama import Fore, Style
 
 class File:
     '''will allow reading/writing/executing a file'''
@@ -48,3 +49,14 @@ class File:
                 file.close()
 
                 return list_of_file_objects
+
+    @staticmethod
+    def print_file_contents(file_path, bank, banner):
+        """prints contents from file given"""
+
+        with open(file_path, "r", encoding="utf8") as f:
+            file_contents = f.read()
+            bank.print_and_clear_screen(banner)
+            print(Fore.BLUE + file_contents)
+            print(Style.RESET_ALL)
+            f.close()
