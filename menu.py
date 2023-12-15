@@ -11,41 +11,41 @@ from colorama import Fore, Style
 from validate import Validate
 from customer import Customer
 from file_reader import File
-from bank import Bank
-
-# constants
-MENU_OPTIONS_LIST = ["Main", "Our Mission", "Login", "Exit", "Create Account"]
-MISSION_STATEMENT_FILE_PATH = 'print_mission_statement.txt'
-PLAYER_FILE_PATH = 'pickle_file'
-RETIREMENT_WITHDRAWEL_AGE = 67
-CREDS_MIN = 6
-CREDS_MAX = 10
-LOADING_CHARACTER = "*"
-LOADING_CHARACTER_LENGTH = 75
-LOADING_CHARACTER_SLEEP_TIMER = 0.095
 
 class Menu:
     '''model of a menu object'''
 
-    @staticmethod
-    def go_to_main():
+    def __init__(self, main_menu_options, logged_in_menu_options, mission_statement_file_path,
+                 player_file_path,retirement_withdrawel_age, creds_min, creds_max,
+                 loading_character_length, loading_character, loading_character_sleep_timer):
+
+        self.main_menu_options = main_menu_options
+        self.logged_in_menu_options = logged_in_menu_options
+        self.mission_statement_file_path = mission_statement_file_path
+        self.player_file_path = player_file_path
+        self.retirement_withdrawel_age = retirement_withdrawel_age
+        self.creds_min = creds_min
+        self.creds_max = creds_max
+        self.loading_character_length = loading_character_length
+        self.loading_character = loading_character
+        self.loading_character_sleep_timer = loading_character_sleep_timer
+
+    def go_to_main(self):
         '''resets screen and takes user to main menu'''
 
         print("You can type any menu item\n")
-        for item in MENU_OPTIONS_LIST:
+        for item in self.main_menu_options:
             print(item)
 
-    @staticmethod
-    def print_mission_statement():
+    def print_mission_statement(self):
         '''gets mission statement from text file for bank'''
-        with open(MISSION_STATEMENT_FILE_PATH, "r", encoding="utf8") as f:
+        with open(self.mission_statement_file_path, "r", encoding="utf8") as f:
             file_contents = f.read()
             print(Fore.BLUE + file_contents)
             print(Style.RESET_ALL)
             f.close()
 
-    @staticmethod
-    def login():
+    def login(self):
         '''logs user in with credentials'''
 
         print("\nUsername:")
@@ -54,16 +54,14 @@ class Menu:
 
         # make list to deliver back to validation method
         creds_list = [user_name, password]
-        if Validate.check_creds(creds_list, PLAYER_FILE_PATH) is False:
+        if Validate.check_creds(creds_list, self.player_file_path) is False:
             print("Login failed, please try again from main menu or create an account")
 
-    @staticmethod
-    def exit_program():
+    def exit_program(self):
         '''ends program'''
         exit()
 
-    @staticmethod
-    def create_new_customer():
+    def create_new_customer(self, bank):
         '''creates new customer with proper credentials'''
         while 1:
             # instansiate Customer class
@@ -75,7 +73,7 @@ class Menu:
             customer.name = Validate.get_valid_input("full_name")
 
             # take name a make sure an existing customer isn't trying to make a new profile
-            customer_exists_already = Validate.customer_exists(customer.name, PLAYER_FILE_PATH)
+            customer_exists_already = Validate.customer_exists(customer.name, self.player_file_path)
             if customer_exists_already:
                 # return None if customer already exists and is trying to make another account
                 print("Looks like theres already an account with that name...\n" \
@@ -87,42 +85,69 @@ class Menu:
             customer.age = Validate.get_valid_input("int")
 
             # determine if they can pull from their 401k
-            if int(customer.age) >= RETIREMENT_WITHDRAWEL_AGE:
+            if int(customer.age) >= self.retirement_withdrawel_age:
                 customer.retirment_withdrawel_eligable = True
 
             # get username
             print("\nEnter a username.\nThe requirements below must be met...\n" \
-                f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
+                f"Length min: {self.creds_min}\nLength max: {self.creds_max}" \
                     "\nNo Spaces")
             customer.username = Validate.get_valid_input("username")
 
             # get password
             print("\nEnter a password.\nThe requirements below must be met...\n" \
-                f"Length min: {CREDS_MIN}\nLength max: {CREDS_MAX}" \
+                f"Length min: {self.creds_min}\nLength max: {self.creds_max}" \
                     "\nNo spaces")
             customer.password = Validate.get_valid_input("password")
 
             # save account to pickle file
-            File.using_pickle_file("write", customer, PLAYER_FILE_PATH)
+            File.using_pickle_file("write", customer, self.player_file_path)
 
             # let customer know account creation was successful
-            Bank.print_and_clear_screen(MENU_OPTIONS_LIST)
+            bank.print_and_clear_screen(self.main_menu_options)
             print("\nCONGRATULATIONS! You are now one of hundreds of American Sups that\n" \
                 "have chosen to support Frederick Vought Foundation by opening an account!\n\n" \
                     "You will be returned to the front page to login now.")
 
             # simulate loading screen
             i = 1
-            while i < LOADING_CHARACTER_LENGTH:
-                print(LOADING_CHARACTER, end='', flush=True)
-                time.sleep(LOADING_CHARACTER_SLEEP_TIMER)
+            while i < self.loading_character_length:
+                print(self.loading_character, end='', flush=True)
+                time.sleep(self.loading_character_sleep_timer)
                 i += 1
             print ("\n")
-            Bank.print_and_clear_screen(MENU_OPTIONS_LIST)
+            bank.print_and_clear_screen(self.main_menu_options)
 
             return customer
 
-    # dict for users not logged in
+    # def view_accounts():
+    #     """allows user to view all owned accounts"""
+
+    # def open_accounts():
+    #     """allows user to open new accounts"""
+
+    # def delete_account():
+    #     """allows user to delete accounts"""
+
+    # def withdraw_retirment():
+    #     """allows user to withdraw retirment fund into savings or checking if eligable"""
+
+    # def logout():
+    #     """takes user back to main page"""
+
+    # def create_savings():
+    #     """create savings account object"""
+
+    # def create_checking():
+    #     """create checking account object"""
+
+    # def create_retirement():
+    #     """create retirement account object"""
+
+    # def create_mmf():
+    #     """create money market fund account object"""
+
+     # dict for users not logged in
     MAIN_MENU_DICT = {
         "Main": go_to_main,
         "Our Mission": print_mission_statement,
@@ -130,3 +155,20 @@ class Menu:
         "Exit": exit_program,
         "Create Account": create_new_customer
     }
+
+    # # dict for logged in users
+    # LOGGED_IN_MENU_DICT = {
+    #     "View Accounts": view_accounts,
+    #     "Open New Account": open_accounts,
+    #     "Delete Account": delete_account,
+    #     "Withdraw From Retirment": withdraw_retirment,
+    #     "Logout": logout
+    # }
+
+    # # dict for creating accounts
+    # ACCOUNT_DICT = {
+    #     "Savings": create_savings,
+    #     "Checking": create_checking,
+    #     "401k": create_retirement,
+    #     "MMF": create_mmf
+    # }
