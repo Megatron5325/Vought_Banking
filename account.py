@@ -7,6 +7,9 @@ the methods and attributes of an account
 object
 '''
 
+ACCOUNT_TYPE_LIST = ["Soldier Boy Savings", "Crimson Countess Checking",
+                     "Stormfront Seniors 401kkk", "Mothers Milk Money Market Fund"]
+
 class Account:
     """a model of an account"""
     def __init__(self, owner, username, password, account_type):
